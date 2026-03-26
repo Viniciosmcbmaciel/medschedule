@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agendamento</title>
+
+    <!-- CSS rápido e profissional -->
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-delete {
+            background: red;
+        }
+
+        .btn-edit {
+            background: orange;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Agendar Consulta</h2>
+
+<input id="paciente" placeholder="Paciente">
+<input id="medico" placeholder="Médico">
+<input id="data" type="date">
+<input id="horario" type="time">
+
+<button onclick="agendar()">Agendar</button>
+
+<h2>Consultas</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Paciente</th>
+            <th>Médico</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+</table>
+
+<script src="script.js"></script>
+
+</body>
+</html>
