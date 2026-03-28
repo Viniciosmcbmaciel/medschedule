@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MedSchedule</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+            <h1>MedSchedule</h1>
+            <p>Painel de Agendamentos</p>
+        </div>
+
+        <div class="topbar-right">
+            <span id="usuarioNome" class="user-name">Usuário</span>
+            <button class="btn-danger" onclick="logout()">Sair</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <section class="card">
+            <h2>Agendar Consulta</h2>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="paciente">Paciente</label>
+                    <input type="text" id="paciente" placeholder="Nome do paciente">
+                </div>
+
+                <div class="form-group">
+                    <label for="medico">Médico</label>
+                    <input type="text" id="medico" placeholder="Nome do médico">
+                </div>
+
+                <div class="form-group">
+                    <label for="data">Data</label>
+                    <input type="date" id="data">
+                </div>
+
+                <div class="form-group">
+                    <label for="horario">Horário</label>
+                    <input type="time" id="horario">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="agendar()">Salvar Consulta</button>
+        </section>
+
+        <section class="card">
+            <h2>Consultas</h2>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Data</th>
+                            <th>Horário</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

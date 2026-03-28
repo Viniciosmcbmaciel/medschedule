@@ -1,78 +1,165 @@
-function agendar() {
-    const paciente = document.getElementById("paciente").value;
-    const medico = document.getElementById("medico").value;
-    const data = document.getElementById("data").value;
-    const horario = document.getElementById("horario").value;
-    const url = editandoId 
-        ? `http://localhost:3000/api/consultas/${editandoId}` 
-        : "http://localhost:3000/api/consultas";
+const API = "http://localhost:3000";
 
-    const method = editandoId ? "PUT" : "POST";
+function login() {
+    const emailInput = document.getElementById("email");
+    const senhaInput = document.getElementById("senha");
 
-    fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ paciente, medico, data, horario })
-})
-    .then(res => res.json())
-    .then(data => {
-        alert(data.mensagem);
-        carregarConsultas(); // 🔥 atualiza lista
+    fetch(API + "/api/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: emailInput.value,
+            senha: senhaInput.value
+        })
     })
-    .catch(err => console.error(err));
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro no login");
+        return data;
+    })
+    .then((data) => {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("nome", data.nome);
+        window.location.href = "dashboard.html";
+    })
+    .catch((err) => alert(err.message));
+}
+
+function cadastrar() {
+    const nomeInput = document.getElementById("nome");
+    const emailCadastroInput = document.getElementById("emailCadastro");
+    const senhaCadastroInput = document.getElementById("senhaCadastro");
+
+    fetch(API + "/api/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            nome: nomeInput.value,
+            email: emailCadastroInput.value,
+            senha: senhaCadastroInput.value
+        })
+    })
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro no cadastro");
+        return data;
+    })
+    .then((data) => {
+        alert(data.mensagem);
+        nomeInput.value = "";
+        emailCadastroInput.value = "";
+        senhaCadastroInput.value = "";
+    })
+    .catch((err) => alert(err.message));
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
 }
 
 function carregarConsultas() {
-    fetch("http://localhost:3000/api/consultas")
-    .then(res => res.json())
-    .then(dados => {
-        const tabela = document.getElementById("lista");
-        tabela.innerHTML = "";
+    const lista = document.getElementById("lista");
+    if (!lista) return;
 
-        dados.forEach(c => {
-            tabela.innerHTML += `
-<tr>
-    <td>${c.paciente}</td>
-    <td>${c.medico}</td>
-    <td>${c.data.split("T")[0]}</td>
-    <td>${c.horario}</td>
-    <td>
-        <button class="btn-edit" onclick="editar(${c.id})">Editar</button>
-        <button class="btn-delete" onclick="excluir(${c.id})">Excluir</button>
-    </td>
-</tr>
-`;
+    fetch(API + "/api/consultas", {
+        headers: {
+            Authorization: localStorage.getItem("token")
+        }
+    })
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao carregar consultas");
+        return data;
+    })
+    .then((dados) => {
+        lista.innerHTML = "";
+
+        dados.forEach((c) => {
+            const dataFormatada = new Date(c.data).toISOString().split("T")[0];
+
+            lista.innerHTML += `
+                <tr>
+                    <td>${c.paciente}</td>
+                    <td>${c.medico}</td>
+                    <td>${dataFormatada}</td>
+                    <td>${c.horario}</td>
+                    <td><button onclick="excluir(${c.id})">X</button></td>
+                </tr>
+            `;
         });
     })
-    .catch(err => console.error(err));
+    .catch((err) => alert(err.message));
+}
+
+function agendar() {
+    const pacienteInput = document.getElementById("paciente");
+    const medicoInput = document.getElementById("medico");
+    const dataInput = document.getElementById("data");
+    const horarioInput = document.getElementById("horario");
+
+    fetch(API + "/api/consultas", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+            paciente: pacienteInput.value,
+            medico: medicoInput.value,
+            data: dataInput.value,
+            horario: horarioInput.value
+        })
+    })
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || data.mensagem || "Erro ao salvar");
+        return data;
+    })
+    .then(() => {
+        pacienteInput.value = "";
+        medicoInput.value = "";
+        dataInput.value = "";
+        horarioInput.value = "";
+        carregarConsultas();
+    })
+    .catch((err) => alert(err.message));
 }
 
 function excluir(id) {
-    fetch(`http://localhost:3000/api/consultas/${id}`, {
-        method: "DELETE"
+    fetch(API + "/api/consultas/" + id, {
+        method: "DELETE",
+        headers: {
+            Authorization: localStorage.getItem("token")
+        }
     })
-    .then(() => {
-        alert("Excluído com sucesso");
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao excluir");
+        return data;
+    })
+    .then(() => carregarConsultas())
+    .catch((err) => alert(err.message));
+}
+
+window.onload = () => {
+    if (window.location.pathname.includes("dashboard.html")) {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        const usuarioNome = document.getElementById("usuarioNome");
+        if (usuarioNome) {
+            usuarioNome.innerText = "Usuário: " + (localStorage.getItem("nome") || "Usuário");
+        }
+
         carregarConsultas();
-    });
-}
-
-let editandoId = null;
-
-function editar(id) {
-    editandoId = id;
-
-    fetch("http://localhost:3000/api/consultas")
-    .then(res => res.json())
-    .then(dados => {
-        const consulta = dados.find(c => c.id == id);
-
-        document.getElementById("paciente").value = consulta.paciente;
-        document.getElementById("medico").value = consulta.medico;
-        document.getElementById("data").value = consulta.data.split("T")[0];
-        document.getElementById("horario").value = consulta.horario;
-    });
-}
-
-// 🔥 carrega ao abrir a página
-window.onload = carregarConsultas;
+    }
+};
