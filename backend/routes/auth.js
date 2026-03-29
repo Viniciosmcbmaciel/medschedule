@@ -4,6 +4,7 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// CADASTRO
 router.post("/register", async (req, res) => {
     const { nome, email, senha } = req.body;
 
@@ -26,6 +27,7 @@ router.post("/register", async (req, res) => {
     }
 });
 
+// LOGIN
 router.post("/login", (req, res) => {
     const { email, senha } = req.body;
 
