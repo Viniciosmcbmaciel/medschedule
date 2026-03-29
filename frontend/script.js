@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = "medschedule-production-b719.up.railway.app";
 
 function login() {
     const emailInput = document.getElementById("email");
