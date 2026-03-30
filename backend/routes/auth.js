@@ -4,7 +4,6 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// CADASTRO
 router.post("/register", async (req, res) => {
     const { nome, email, senha } = req.body;
 
@@ -19,7 +18,7 @@ router.post("/register", async (req, res) => {
                     return res.status(500).json({ erro: "Erro ao cadastrar usuário" });
                 }
 
-                res.json({ mensagem: "Usuário cadastrado!" });
+                res.json({ mensagem: "Usuário cadastrado no Railway!" });
             }
         );
     } catch {
@@ -27,7 +26,6 @@ router.post("/register", async (req, res) => {
     }
 });
 
-// LOGIN
 router.post("/login", (req, res) => {
     const { email, senha } = req.body;
 
