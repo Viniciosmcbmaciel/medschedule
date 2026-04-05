@@ -11,11 +11,13 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-console.log("Conectando com:");
-console.log({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    database: process.env.DB_NAME
+db.getConnection((err, connection) => {
+    if (err) {
+        console.error("ERRO AO CONECTAR NO MYSQL:", err);
+    } else {
+        console.log("MYSQL CONECTADO COM SUCESSO");
+        connection.release();
+    }
 });
 
 module.exports = db;
