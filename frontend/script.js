@@ -1,8 +1,11 @@
 const API = "https://medschedule-production-b719.up.railway.app";
 
+// LOGIN
 function login() {
     const emailInput = document.getElementById("email");
     const senhaInput = document.getElementById("senha");
+
+    if (!emailInput || !senhaInput) return;
 
     fetch(API + "/api/login", {
         method: "POST",
@@ -15,22 +18,38 @@ function login() {
         })
     })
     .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.erro || "Erro no login");
-        return data;
+        const texto = await res.text();
+
+        try {
+            const data = JSON.parse(texto);
+
+            if (!res.ok) {
+                throw new Error(data.erro || "Erro no login");
+            }
+
+            return data;
+        } catch {
+            throw new Error("Resposta inválida do servidor: " + texto);
+        }
     })
     .then((data) => {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("nome", data.nome);
+        localStorage.setItem("nome", data.nome || "Usuário");
         window.location.href = "dashboard.html";
     })
-    .catch((err) => alert(err.message));
+    .catch((err) => {
+        alert(err.message);
+        console.error("Erro no login:", err);
+    });
 }
 
+// CADASTRO
 function cadastrar() {
     const nomeInput = document.getElementById("nome");
     const emailCadastroInput = document.getElementById("emailCadastro");
     const senhaCadastroInput = document.getElementById("senhaCadastro");
+
+    if (!nomeInput || !emailCadastroInput || !senhaCadastroInput) return;
 
     fetch(API + "/api/register", {
         method: "POST",
@@ -44,12 +63,23 @@ function cadastrar() {
         })
     })
     .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.erro || "Erro ao cadastrar");
-        return data;
+        const texto = await res.text();
+
+        try {
+            const data = JSON.parse(texto);
+
+            if (!res.ok) {
+                throw new Error(data.erro || "Erro ao cadastrar");
+            }
+
+            return data;
+        } catch {
+            throw new Error("Resposta inválida do servidor: " + texto);
+        }
     })
     .then((data) => {
-        alert(data.mensagem);
+        alert(data.mensagem || "Usuário cadastrado com sucesso");
+
         nomeInput.value = "";
         emailCadastroInput.value = "";
         senhaCadastroInput.value = "";
@@ -60,11 +90,13 @@ function cadastrar() {
     });
 }
 
+// LOGOUT
 function logout() {
     localStorage.clear();
-    window.location.href = "login.html";
+    window.location.href = "index.html";
 }
 
+// LISTAR CONSULTAS
 function carregarConsultas() {
     const lista = document.getElementById("lista");
     if (!lista) return;
@@ -75,15 +107,29 @@ function carregarConsultas() {
         }
     })
     .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.erro || "Erro ao carregar consultas");
-        return data;
+        const texto = await res.text();
+
+        try {
+            const data = JSON.parse(texto);
+
+            if (!res.ok) {
+                throw new Error(data.erro || "Erro ao carregar consultas");
+            }
+
+            return data;
+        } catch {
+            throw new Error("Resposta inválida do servidor: " + texto);
+        }
     })
     .then((dados) => {
         lista.innerHTML = "";
 
+        if (!Array.isArray(dados)) return;
+
         dados.forEach((c) => {
-            const dataFormatada = new Date(c.data).toISOString().split("T")[0];
+            const dataFormatada = c.data
+                ? new Date(c.data).toISOString().split("T")[0]
+                : "";
 
             lista.innerHTML += `
                 <tr>
@@ -91,19 +137,27 @@ function carregarConsultas() {
                     <td>${c.medico}</td>
                     <td>${dataFormatada}</td>
                     <td>${c.horario}</td>
-                    <td><button onclick="excluir(${c.id})">X</button></td>
+                    <td>
+                        <button onclick="excluir(${c.id})">X</button>
+                    </td>
                 </tr>
             `;
         });
     })
-    .catch((err) => alert(err.message));
+    .catch((err) => {
+        alert(err.message);
+        console.error("Erro ao carregar consultas:", err);
+    });
 }
 
+// SALVAR CONSULTA
 function agendar() {
     const pacienteInput = document.getElementById("paciente");
     const medicoInput = document.getElementById("medico");
     const dataInput = document.getElementById("data");
     const horarioInput = document.getElementById("horario");
+
+    if (!pacienteInput || !medicoInput || !dataInput || !horarioInput) return;
 
     fetch(API + "/api/consultas", {
         method: "POST",
@@ -119,20 +173,37 @@ function agendar() {
         })
     })
     .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.erro || data.mensagem || "Erro ao salvar");
-        return data;
+        const texto = await res.text();
+
+        try {
+            const data = JSON.parse(texto);
+
+            if (!res.ok) {
+                throw new Error(data.erro || data.mensagem || "Erro ao salvar consulta");
+            }
+
+            return data;
+        } catch {
+            throw new Error("Resposta inválida do servidor: " + texto);
+        }
     })
-    .then(() => {
+    .then((data) => {
+        alert(data.mensagem || "Consulta salva com sucesso");
+
         pacienteInput.value = "";
         medicoInput.value = "";
         dataInput.value = "";
         horarioInput.value = "";
+
         carregarConsultas();
     })
-    .catch((err) => alert(err.message));
+    .catch((err) => {
+        alert(err.message);
+        console.error("Erro ao salvar consulta:", err);
+    });
 }
 
+// EXCLUIR CONSULTA
 function excluir(id) {
     fetch(API + "/api/consultas/" + id, {
         method: "DELETE",
@@ -141,20 +212,39 @@ function excluir(id) {
         }
     })
     .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.erro || "Erro ao excluir");
-        return data;
+        const texto = await res.text();
+
+        try {
+            const data = JSON.parse(texto);
+
+            if (!res.ok) {
+                throw new Error(data.erro || data.mensagem || "Erro ao excluir consulta");
+            }
+
+            return data;
+        } catch {
+            throw new Error("Resposta inválida do servidor: " + texto);
+        }
     })
-    .then(() => carregarConsultas())
-    .catch((err) => alert(err.message));
+    .then((data) => {
+        alert(data.mensagem || "Consulta excluída com sucesso");
+        carregarConsultas();
+    })
+    .catch((err) => {
+        alert(err.message);
+        console.error("Erro ao excluir consulta:", err);
+    });
 }
 
+// INICIAR DASHBOARD
 window.onload = () => {
-    if (window.location.pathname.includes("dashboard.html")) {
+    const caminho = window.location.pathname;
+
+    if (caminho.includes("dashboard.html")) {
         const token = localStorage.getItem("token");
 
         if (!token) {
-            window.location.href = "login.html";
+            window.location.href = "index.html";
             return;
         }
 
