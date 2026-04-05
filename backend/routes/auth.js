@@ -15,10 +15,11 @@ router.post("/register", async (req, res) => {
             [nome, email, senhaHash],
             (err) => {
                 if (err) {
-                    return res.status(500).json({ erro: "Erro ao cadastrar usuário" });
+                    console.error("ERRO MYSQL REGISTER:", err);
+                    return res.status(500).json({ erro: err.message });
                 }
 
-                res.json({ mensagem: "Usuário cadastrado no Railway!" });
+                res.json({ mensagem: "Usuário cadastrado!" });
             }
         );
     } catch {
