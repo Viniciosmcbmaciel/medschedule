@@ -56,4 +56,8 @@ router.post("/login", (req, res) => {
     );
 });
 
+ router.get("/teste-auth", (req, res) => {
+     res.send("Rota auth caregada!");
+ });
+
 module.exports = router;
