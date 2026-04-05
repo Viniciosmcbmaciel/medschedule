@@ -11,4 +11,11 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
+console.log("Conectando com:");
+console.log({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    database: process.env.DB_NAME
+});
+
 module.exports = db;
