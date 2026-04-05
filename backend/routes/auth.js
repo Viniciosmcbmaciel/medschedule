@@ -15,15 +15,20 @@ router.post("/register", async (req, res) => {
             [nome, email, senhaHash],
             (err) => {
                 if (err) {
-                    console.error("ERRO MYSQL REGISTER:", err);
-                    return res.status(500).json({ erro: err.message });
+                    console.error("ERRO MYSQL REGISTER COMPLETO:", err);
+                    return res.status(500).json({
+                        erro: err.sqlMessage || err.message || JSON.stringify(err)
+                    });
                 }
 
                 res.json({ mensagem: "Usuário cadastrado!" });
             }
         );
-    } catch {
-        res.status(500).json({ erro: "Erro interno no cadastro" });
+    } catch (error) {
+        console.error("ERRO INTERNO REGISTER:", error);
+        res.status(500).json({
+            erro: error.message || "Erro interno no cadastro"
+        });
     }
 });
 
