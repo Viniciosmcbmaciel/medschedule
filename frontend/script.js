@@ -45,7 +45,7 @@ function cadastrar() {
     })
     .then(async (res) => {
         const data = await res.json();
-        if (!res.ok) throw new Error(data.erro || "Erro no cadastro");
+        if (!res.ok) throw new Error(data.erro || "Erro ao cadastrar");
         return data;
     })
     .then((data) => {
@@ -54,7 +54,10 @@ function cadastrar() {
         emailCadastroInput.value = "";
         senhaCadastroInput.value = "";
     })
-    .catch((err) => alert(err.message));
+    .catch((err) => {
+        alert(err.message);
+        console.error("Erro no cadastro:", err);
+    });
 }
 
 function logout() {
