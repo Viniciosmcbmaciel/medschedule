@@ -1,12 +1,6 @@
 const mysql = require("mysql2");
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-    console.error("DATABASE_URL não definida");
-}
-
-const db = mysql.createPool(databaseUrl);
+const db = mysql.createPool(process.env.DATABASE_URL);
 
 db.getConnection((err, connection) => {
     if (err) {
